@@ -1,6 +1,8 @@
-//=================================================
+//================================================
+//Authpr : AJAY RATHOD
+//PROJECT : Pixelflow 
 // Module: pixel
-// Low Latency Feed Forward Image Filter
+// Low Latency Feed Forward Architecture for Image Filter
 // Row FIR (Direct) + Column FIR (Transpose)
 //=================================================
 
