@@ -13,4 +13,4 @@ Low latency feed forward architecture for real-time image filtering using FPGA.
 - MATLAB code
 
 ## Author
-Ajay and team
+Ajay Rathod
