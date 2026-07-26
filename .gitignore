@@ -1,0 +1,10 @@
+# Modelsim
+work/
+transcript
+vsim.wlf
+modelsim.ini
+
+# Temporary files
+~$*
+*.docx.tmp
+*.pptx.tmp
