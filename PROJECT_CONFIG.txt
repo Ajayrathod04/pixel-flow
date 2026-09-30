@@ -1,0 +1,10 @@
+PixelFlow paper-aligned configuration
+Image: 32x32 grayscale
+K=3, L=3
+H=[1,2,1]
+V=[1,2,1]^T
+ROWS_PER_CYCLE=2
+RConv: direct-form FIR
+CConv: transpose-form FIR state update
+Paper latency convention: K+L-1=5 cycles
+Normalization: >>>4 (divide by 16)

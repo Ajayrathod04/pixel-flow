@@ -1,0 +1,103 @@
+# do run_real_image.do 32 32 ../data/input/processed_example.mem ../data/output/processed_example_output.mem
+# 32
+# 32
+# ../data/input/original.mem
+# ../data/output/original_output.mem
+# 32
+# 32
+# ../data/input/processed_example.mem
+# ../data/output/processed_example_output.mem
+# D:/PixelFlow_Analysis_Only/modelsim
+# D:/PixelFlow_Analysis_Only
+# reading modelsim.ini
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work work 
+# Modifying modelsim.ini
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 16:35:28 on Sep 28,2026
+# vlog -sv D:/PixelFlow_Analysis_Only/hdl/row_convolver.sv 
+# -- Compiling module row_convolver
+# 
+# Top level modules:
+# 	row_convolver
+# End time: 16:35:28 on Sep 28,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 16:35:28 on Sep 28,2026
+# vlog -sv D:/PixelFlow_Analysis_Only/hdl/column_convolver.sv 
+# -- Compiling module column_convolver
+# 
+# Top level modules:
+# 	column_convolver
+# End time: 16:35:28 on Sep 28,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 16:35:29 on Sep 28,2026
+# vlog -sv D:/PixelFlow_Analysis_Only/hdl/image_filter_top.sv 
+# -- Compiling module image_filter_top
+# 
+# Top level modules:
+# 	image_filter_top
+# End time: 16:35:29 on Sep 28,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 16:35:29 on Sep 28,2026
+# vlog -sv D:/PixelFlow_Analysis_Only/hdl/tb_image_filter.sv 
+# -- Compiling module tb_image_filter
+# 
+# Top level modules:
+# 	tb_image_filter
+# End time: 16:35:29 on Sep 28,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -c -voptargs="+acc" work.tb_image_filter -do "run -all; quit -f" -gM=32 -gINPUT_MEM=../data/input/processed_example.mem -gN=32 -gOUTPUT_MEM=../data/output/processed_example_output.mem 
+# Start time: 16:35:29 on Sep 28,2026
+# Loading sv_std.std
+# Loading work.tb_image_filter
+# Loading work.image_filter_top
+# Loading work.row_convolver
+# Loading work.column_convolver
+# run -all
+# ====================================================
+# PixelFlow REAL IMAGE: 32x32, 8-bit grayscale
+# Input:  ../data/input/processed_example.mem
+# Output: ../data/output/processed_example_output.mem
+# Filter: horizontal [1 2 1], vertical [1 2 1]
+# ====================================================
+# cycle=7  row_valid_out=1  output_row=0
+# cycle=9  row_valid_out=1  output_row=1
+# cycle=11  row_valid_out=1  output_row=2
+# cycle=13  row_valid_out=1  output_row=3
+# cycle=15  row_valid_out=1  output_row=4
+# cycle=17  row_valid_out=1  output_row=5
+# cycle=19  row_valid_out=1  output_row=6
+# cycle=21  row_valid_out=1  output_row=7
+# cycle=23  row_valid_out=1  output_row=8
+# cycle=25  row_valid_out=1  output_row=9
+# cycle=27  row_valid_out=1  output_row=10
+# cycle=29  row_valid_out=1  output_row=11
+# cycle=31  row_valid_out=1  output_row=12
+# cycle=33  row_valid_out=1  output_row=13
+# cycle=35  row_valid_out=1  output_row=14
+# cycle=37  row_valid_out=1  output_row=15
+# cycle=39  row_valid_out=1  output_row=16
+# cycle=41  row_valid_out=1  output_row=17
+# cycle=43  row_valid_out=1  output_row=18
+# cycle=45  row_valid_out=1  output_row=19
+# cycle=47  row_valid_out=1  output_row=20
+# cycle=49  row_valid_out=1  output_row=21
+# cycle=51  row_valid_out=1  output_row=22
+# cycle=53  row_valid_out=1  output_row=23
+# cycle=55  row_valid_out=1  output_row=24
+# cycle=57  row_valid_out=1  output_row=25
+# cycle=59  row_valid_out=1  output_row=26
+# cycle=61  row_valid_out=1  output_row=27
+# cycle=63  row_valid_out=1  output_row=28
+# cycle=65  row_valid_out=1  output_row=29
+# cycle=67  row_valid_out=1  output_row=30
+# cycle=69  row_valid_out=1  output_row=31
+# PASS: REAL IMAGE row + column convolution verified, 0 mismatches
+# Output MEM written to ../data/output/processed_example_output.mem
+# ** Note: $finish    : D:/PixelFlow_Analysis_Only/hdl/tb_image_filter.sv(125)
+#    Time: 715 ns  Iteration: 1  Instance: /tb_image_filter
+# End time: 16:35:30 on Sep 28,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
