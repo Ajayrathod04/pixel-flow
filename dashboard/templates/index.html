@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelFlow — FPGA Image Processing & 2D Convolution Demonstration</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <!-- HEADER & NAVIGATION -->
+        <header class="dashboard-header">
+            <div class="header-brand">
+                <div class="brand-logo">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="20" height="20" rx="4"/>
+                        <rect x="6" y="6" width="4" height="4" fill="currentColor"/>
+                        <rect x="14" y="6" width="4" height="4" fill="currentColor"/>
+                        <rect x="6" y="14" width="4" height="4" fill="currentColor"/>
+                        <rect x="14" y="14" width="4" height="4" fill="currentColor"/>
+                        <path d="M10 12h4M12 10v4" stroke="#38BDF8" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1>PIXELFLOW</h1>
+                    <p class="subtitle">Low-Latency Feed-Forward Image Processing Accelerator</p>
+                </div>
+            </div>
+            
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-view="view-home">
+                    <span class="tab-icon">🏠</span> HOME
+                </button>
+                <button class="nav-tab" data-view="view-conversion">
+                    <span class="tab-icon">🔄</span> CONVERSION TOOLS
+                </button>
+                <button class="nav-tab" data-view="view-run">
+                    <span class="tab-icon">⚡</span> GO TO PIXELFLOW
+                </button>
+                <button class="nav-tab" data-view="view-architecture">
+                    <span class="tab-icon">📐</span> HARDWARE ARCHITECTURE
+                </button>
+                <button class="nav-tab" data-view="view-reports">
+                    <span class="tab-icon">📊</span> VIVADO REPORTS
+                </button>
+                <button class="nav-tab" data-view="view-downloads">
+                    <span class="tab-icon">📥</span> DOWNLOAD CENTER
+                </button>
+            </nav>
+
+            <div class="header-status">
+                <span class="status-indicator ready" id="globalStatusDot"></span>
+                <span id="globalStatusText">System Ready</span>
+            </div>
+        </header>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 1: FIRST LANDING PAGE (HOME)                         -->
+        <!-- ========================================================= -->
+        <main id="view-home" class="tab-view active">
+            
+            <!-- HERO BANNER -->
+            <section class="hero-card">
+                <div class="hero-content">
+                    <div class="hero-badge">FPGA HARDWARE ACCELERATOR</div>
+                    <h2 class="hero-title">PIXELFLOW ACCELERATOR ARCHITECTURE</h2>
+                    <p class="hero-subtitle">
+                        Image File → Memory Initialization → FPGA Convolution → Reconstructed Image
+                    </p>
+                    <p class="hero-desc">
+                        PixelFlow converts raw image data into an FPGA-compatible hexadecimal memory file, streams it into a SystemVerilog 2D separable convolution hardware accelerator using Vivado XSim, captures hardware output MEM data, and reconstructs the filtered image via Python.
+                    </p>
+                    <div class="hero-actions-row" style="display:flex;gap:14px;margin-top:14px;">
+                        <button class="btn btn-secondary" onclick="switchTab('view-conversion')">
+                            🔄 IMAGE ↔ MEM CONVERSION
+                        </button>
+                        <button class="btn btn-primary-lg" onclick="switchTab('view-run')">
+                            ⚡ GO TO PIXELFLOW ➔
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LANDING PAGE — PARAMETER PANEL -->
+            <section class="card-section">
+                <h3 class="section-title">Hardware Architecture Parameters</h3>
+                <div class="param-grid">
+                    
+                    <div class="param-card">
+                        <div class="param-icon">🖼️</div>
+                        <div class="param-label">IMAGE RESOLUTION</div>
+                        <div class="param-val">M = 32, N = 32</div>
+                        <div class="param-sub">32 × 32 (1024 Pixels)</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">🎯</div>
+                        <div class="param-label">2D FILTER KERNEL</div>
+                        <div class="param-val">K = 3, L = 3</div>
+                        <div class="param-sub">H = [1 2 1], V = [1 2 1]ᵀ</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">🔢</div>
+                        <div class="param-label">PIXEL DATA WIDTH</div>
+                        <div class="param-val">8-bit</div>
+                        <div class="param-sub">Grayscale Byte Format</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">⚡</div>
+                        <div class="param-label">THROUGHPUT</div>
+                        <div class="param-val">2 Rows / Cycle</div>
+                        <div class="param-sub">Parallel Row Processing</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">🔌</div>
+                        <div class="param-label">INPUT BUS</div>
+                        <div class="param-val">512-bit</div>
+                        <div class="param-sub">Parallel Row Memory Stream</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">🔀</div>
+                        <div class="param-label">INTERMEDIATE RCONV BUS</div>
+                        <div class="param-val">1280-bit</div>
+                        <div class="param-sub">2 × 32 × 20-bit Intermediate Bus</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">📤</div>
+                        <div class="param-label">OUTPUT BUS</div>
+                        <div class="param-val">512-bit</div>
+                        <div class="param-sub">Parallel Output Row Bus</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">⚖️</div>
+                        <div class="param-label">NORMALIZATION</div>
+                        <div class="param-val">>>> 4</div>
+                        <div class="param-sub">Bit-Shift >>> 4 (Divide by 16)</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">⏱️</div>
+                        <div class="param-label">PIPELINE LATENCY</div>
+                        <div class="param-val">5 Cycles</div>
+                        <div class="param-sub">K + L - 1 = 5 Cycles</div>
+                    </div>
+
+                    <div class="param-card">
+                        <div class="param-icon">🛡️</div>
+                        <div class="param-label">BORDER HANDLING</div>
+                        <div class="param-val">Zero Padding</div>
+                        <div class="param-sub">Boundary Condition Guard</div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ARCHITECTURE DIAGRAM -->
+            <section class="card arch-diagram-card">
+                <h3 class="section-title">PixelFlow End-to-End Architecture Diagram</h3>
+                <div class="diagram-wrapper">
+                    
+                    <div class="arch-flow">
+                        
+                        <!-- SW PREPROCESSING -->
+                        <div class="arch-box sw-box">
+                            <div class="box-tag sw-tag">SOFTWARE PREPROCESSING</div>
+                            <div class="arch-node">
+                                <span class="node-icon">🖼️</span>
+                                <div>
+                                    <div class="node-name">INPUT IMAGE</div>
+                                    <div class="node-detail">PNG / JPG / BMP</div>
+                                </div>
+                            </div>
+                            <div class="flow-down-arrow">↓</div>
+                            <div class="arch-node script-node">
+                                <span class="node-icon">🐍</span>
+                                <div>
+                                    <div class="node-name">prepare_image.py</div>
+                                    <div class="node-detail">Grayscale + Resize (32×32)</div>
+                                </div>
+                            </div>
+                            <div class="flow-down-arrow">↓</div>
+                            <div class="arch-node mem-node">
+                                <span class="node-icon">📄</span>
+                                <div>
+                                    <div class="node-name">input.mem</div>
+                                    <div class="node-detail">1024 × 8-bit HEX data</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flow-stage-arrow">
+                            <span>$readmemh</span>
+                            <div class="animated-arrow">➔</div>
+                        </div>
+
+                        <!-- SYSTEMVERILOG HARDWARE -->
+                        <div class="arch-box hw-box">
+                            <div class="box-tag hw-tag">FPGA / SYSTEMVERILOG HARDWARE</div>
+                            <div class="hw-container">
+                                <div class="hw-top-module">
+                                    <span class="hw-chip">⚡ image_filter_top.sv</span>
+                                </div>
+                                <div class="hw-modules-grid">
+                                    <div class="hw-sub-module">
+                                        <div class="sub-title">row_convolver.sv</div>
+                                        <div class="sub-desc">Horizontal FIR: [1 2 1]</div>
+                                    </div>
+                                    <div class="hw-stage-connect">↓</div>
+                                    <div class="hw-sub-module">
+                                        <div class="sub-title">column_convolver.sv</div>
+                                        <div class="sub-desc">Vertical FIR: [1 2 1]ᵀ</div>
+                                    </div>
+                                </div>
+                                <div class="hw-norm">Shift Normalization: >>> 4</div>
+                            </div>
+                            <div class="flow-down-arrow">↓</div>
+                            <div class="arch-node mem-node">
+                                <span class="node-icon">💾</span>
+                                <div>
+                                    <div class="node-name">output.mem</div>
+                                    <div class="node-detail">1024 × 8-bit HEX data</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flow-stage-arrow">
+                            <span>RECONSTRUCT</span>
+                            <div class="animated-arrow">➔</div>
+                        </div>
+
+                        <!-- SW RECONSTRUCTION -->
+                        <div class="arch-box sw-box">
+                            <div class="box-tag sw-tag">SOFTWARE RECONSTRUCTION</div>
+                            <div class="arch-node script-node">
+                                <span class="node-icon">🔄</span>
+                                <div>
+                                    <div class="node-name">reconstruct.py</div>
+                                    <div class="node-detail">MEM → PNG Conversion</div>
+                                </div>
+                            </div>
+                            <div class="flow-down-arrow">↓</div>
+                            <div class="arch-node success-node">
+                                <span class="node-icon">✨</span>
+                                <div>
+                                    <div class="node-name">PIXELFLOW OUTPUT</div>
+                                    <div class="node-detail">reconstructed.png</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- LANDING PAGE — TWO LARGE OPTION CARDS -->
+            <section class="options-section">
+                <h3 class="section-title">Select Mode to Launch</h3>
+                <div class="mode-cards-grid">
+                    
+                    <!-- MODE A: CONVERSION TOOLS -->
+                    <div class="mode-card" onclick="switchTab('view-conversion')">
+                        <div class="mode-header">
+                            <div class="mode-icon">🔄</div>
+                            <div class="mode-badge">MODE A</div>
+                        </div>
+                        <h4 class="mode-title">IMAGE ↔ MEM CONVERSION</h4>
+                        <p class="mode-desc">
+                            Convert a normal image into the exact hexadecimal MEM format required by the PixelFlow hardware pipeline, or reconstruct a PNG image from a MEM file.
+                        </p>
+                        <div class="mode-actions">
+                            <button class="btn btn-secondary">
+                                OPEN CONVERSION TOOLS ➔
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- MODE B: RUN PIXELFLOW -->
+                    <div class="mode-card highlight-mode" onclick="switchTab('view-run')">
+                        <div class="mode-header">
+                            <div class="mode-icon">⚡</div>
+                            <div class="mode-badge hw-badge">MODE B (FULL PIPELINE)</div>
+                        </div>
+                        <h4 class="mode-title">RUN PIXELFLOW</h4>
+                        <p class="mode-desc">
+                            Run the complete end-to-end pipeline: Image → prepare_image.py → input.mem → SystemVerilog RTL → Vivado XSim → output.mem → reconstruct.py → Output Image.
+                        </p>
+                        <div class="mode-actions">
+                            <button class="btn btn-primary-lg">
+                                LAUNCH PIXELFLOW ➔
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 2: CONVERSION TOOLS PAGE (MODE A)                    -->
+        <!-- ========================================================= -->
+        <main id="view-conversion" class="tab-view">
+            
+            <div class="page-title-banner">
+                <h2>PIXELFLOW CONVERSION TOOLS</h2>
+                <p class="subtitle">"Use the existing PixelFlow Python conversion scripts directly."</p>
+            </div>
+
+            <!-- TOP VISUAL FLOW -->
+            <section class="card conversion-flow-card">
+                <div class="flow-header">STANDALONE UTILITIES FLOW</div>
+                <div class="mini-flow-grid">
+                    <div class="mini-flow-box">
+                        <span class="lbl">IMAGE</span> ➔ <span class="code">prepare_image.py</span> ➔ <span class="lbl">input.mem</span>
+                    </div>
+                    <div class="flow-divider-v">AND</div>
+                    <div class="mini-flow-box">
+                        <span class="lbl">MEM File</span> ➔ <span class="code">reconstruct.py</span> ➔ <span class="lbl">PNG Image</span>
+                    </div>
+                </div>
+                <div class="flow-disclaimer">
+                    ⚠️ Note: These are independent software utilities used for file formatting. They do NOT execute FPGA filtering.
+                </div>
+            </section>
+
+            <!-- TWO TOOLS GRID -->
+            <div class="tools-grid">
+                
+                <!-- TOOL 6A: IMAGE -> MEM (SESSION-LINKED) -->
+                <section class="card tool-card">
+                    <div class="card-header-flex">
+                        <h3 class="card-title">1. IMAGE → MEM (SESSION CONVERTOR)</h3>
+                        <span class="script-badge">prepare_image.py</span>
+                    </div>
+
+                    <div class="tool-body">
+                        <div class="upload-dropzone" id="imgToMemDropzone">
+                            <input type="file" id="imgToMemInput" accept="image/*" style="display:none;">
+                            <label for="imgToMemInput" class="upload-label">
+                                <span class="drop-icon">📁</span>
+                                <span>Choose or Drag ANY Input Image</span>
+                                <span class="drop-sub">PNG, JPG, JPEG, BMP format</span>
+                            </label>
+                        </div>
+
+                        <div id="imgToMemInfo" class="file-details-box" style="display:none;">
+                            <div class="detail-row"><span class="lbl">Source File:</span> <span id="convImgName" class="val">-</span></div>
+                            <div class="detail-row"><span class="lbl">Original Dimensions:</span> <span id="convImgOrigDim" class="val">-</span></div>
+                            <div class="detail-row"><span class="lbl">Status:</span> <span class="val success-text">Ready for prepare_image.py</span></div>
+                            <div class="img-preview-mini">
+                                <img id="convImgPreview" src="" alt="Selected Preview">
+                            </div>
+                        </div>
+
+                        <div class="config-row">
+                            <div class="cfg-group">
+                                <label>Target Width</label>
+                                <input type="number" id="convWidth" value="32" readonly>
+                            </div>
+                            <div class="cfg-group">
+                                <label>Target Height</label>
+                                <input type="number" id="convHeight" value="32" readonly>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" id="btnGenMem" onclick="runGenerateMem()">
+                            ⚡ GENERATE MEM
+                        </button>
+
+                        <!-- MEM GENERATED RESULT CARD -->
+                        <div id="genMemResult" class="result-card" style="display:none;">
+                            <div class="result-header">
+                                <span class="check-icon">✓</span> MEM GENERATED SUCCESSFULLY
+                            </div>
+                            <ul class="result-specs">
+                                <li><strong>Source Image:</strong> <span id="resSourceImg">-</span></li>
+                                <li><strong>Target Grid:</strong> <span id="resTargetDim">32 × 32 (1024 Pixels)</span></li>
+                                <li><strong>Format:</strong> 8-bit Grayscale, 2-Digit HEX</li>
+                                <li><strong>Session Token:</strong> <code id="resSessionId">-</code></li>
+                                <li><strong>MEM SHA-256:</strong> <code id="resMemSha256">-</code></li>
+                            </ul>
+
+                            <!-- 32x32 GRAYSCALE PREVIEW -->
+                            <div class="preview-32-box" style="margin-top:12px;text-align:center;background:rgba(15,23,42,0.8);padding:10px;border-radius:6px;border:1px solid rgba(56,189,248,0.2);">
+                                <div style="font-size:12px;font-weight:600;color:#38BDF8;margin-bottom:6px;">32 × 32 GRAYSCALE HARDWARE INPUT RECONSTRUCTION</div>
+                                <img id="conv32x32Preview" src="" alt="32x32 Grayscale Preview" style="width:128px;height:128px;image-rendering:pixelated;border:1px solid #475569;border-radius:4px;">
+                            </div>
+                            
+                            <div class="hex-preview-box" style="margin-top:12px;">
+                                <div class="hex-title">HEX Preview (First 32 Values):</div>
+                                <div class="hex-grid-compact" id="convHexPreview"></div>
+                            </div>
+
+                            <div style="display:flex;gap:10px;margin-top:12px;">
+                                <a id="btnDownloadMem" href="#" class="btn btn-secondary" style="flex:1;text-align:center;" download>
+                                    📥 DOWNLOAD input.mem
+                                </a>
+                                <button id="btnReconstructSessionMem" onclick="runReconstructCurrentSessionMem()" class="btn btn-primary" style="flex:1;">
+                                    🔄 RECONSTRUCT THIS GENERATED MEM
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- SESSION RECONSTRUCTION RESULT COMPARISON -->
+                        <div id="sessionReconResult" class="result-card" style="display:none;margin-top:16px;">
+                            <div class="result-header">
+                                <span class="check-icon">✓</span> RECONSTRUCTED FROM GENERATED MEM
+                            </div>
+
+                            <div class="side-by-side-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;text-align:center;">
+                                <div class="cmp-box" style="background:#0f172a;padding:8px;border-radius:6px;">
+                                    <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">1. ORIGINAL IMAGE</div>
+                                    <img id="reconCompOriginal" src="" style="max-height:100px;max-width:100%;object-fit:contain;">
+                                </div>
+                                <div class="cmp-box" style="background:#0f172a;padding:8px;border-radius:6px;">
+                                    <div style="font-size:11px;color:#38bdf8;margin-bottom:4px;">2. 32x32 GRAYSCALE</div>
+                                    <img id="reconCompPrep" src="" style="width:96px;height:96px;image-rendering:pixelated;">
+                                </div>
+                                <div class="cmp-box" style="background:#0f172a;padding:8px;border-radius:6px;">
+                                    <div style="font-size:11px;color:#4ade80;margin-bottom:4px;">3. RECONSTRUCTED PNG</div>
+                                    <img id="reconCompResult" src="" style="width:96px;height:96px;image-rendering:pixelated;">
+                                </div>
+                            </div>
+
+                            <a id="btnDownloadSessionReconPng" href="#" class="btn btn-secondary btn-full" style="margin-top:12px;" download>
+                                📥 DOWNLOAD RECONSTRUCTED PNG
+                            </a>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- TOOL 6B: MANUAL MEM FILE UPLOAD -->
+                <section class="card tool-card">
+                    <div class="card-header-flex">
+                        <h3 class="card-title">2. MANUAL MEM FILE CONVERTOR</h3>
+                        <span class="script-badge">reconstruct.py</span>
+                    </div>
+
+                    <div class="tool-body">
+                        <div style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.3);padding:8px 12px;border-radius:6px;font-size:12px;color:#fde047;margin-bottom:12px;">
+                            ℹ️ Independent utility: Upload any external .mem file to reconstruct it to PNG format.
+                        </div>
+
+                        <div class="upload-dropzone" id="memToImgDropzone">
+                            <input type="file" id="memToImgInput" accept=".mem" style="display:none;">
+                            <label for="memToImgInput" class="upload-label">
+                                <span class="drop-icon">📄</span>
+                                <span>Choose or Drag ANY .mem File</span>
+                                <span class="drop-sub">.mem hexadecimal format</span>
+                            </label>
+                        </div>
+
+                        <div id="memToImgInfo" class="file-details-box" style="display:none;">
+                            <div class="detail-row"><span class="lbl">MANUAL MEM:</span> <span id="convMemName" class="val">-</span></div>
+                            <div class="detail-row"><span class="lbl">Detected Pixels:</span> <span id="convMemCount" class="val">-</span></div>
+                            <div class="detail-row"><span class="lbl">SHA-256:</span> <code id="convMemSha256" class="val">-</code></div>
+                            <div class="detail-row"><span class="lbl">Session:</span> <code id="convMemSessionId" class="val">-</code></div>
+                            <div class="detail-row"><span class="lbl">Status:</span> <span class="val success-text">Ready for reconstruct.py</span></div>
+                        </div>
+
+                        <div class="config-row">
+                            <div class="cfg-group">
+                                <label>Image Width</label>
+                                <input type="number" id="reconWidth" value="32" readonly>
+                            </div>
+                            <div class="cfg-group">
+                                <label>Image Height</label>
+                                <input type="number" id="reconHeight" value="32" readonly>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-secondary" id="btnReconstruct" onclick="runReconstructManualMem()">
+                            🖼️ RECONSTRUCT MANUAL MEM FILE
+                        </button>
+
+                        <!-- MANUAL RESULT CARD -->
+                        <div id="reconResult" class="result-card" style="display:none;margin-top:12px;">
+                            <div class="result-header">
+                                <span class="check-icon">✓</span> MANUAL MEM RECONSTRUCTED
+                            </div>
+                            <ul class="result-specs" style="margin-bottom:10px;">
+                                <li><strong>Source MEM SHA-256:</strong> <code id="manualResMemSha256">-</code></li>
+                                <li><strong>Output PNG SHA-256:</strong> <code id="manualResOutSha256">-</code></li>
+                                <li><strong>Reconstructed Artifact:</strong> <code id="manualResArtifactName">-</code></li>
+                            </ul>
+                            <div class="recon-preview-wrapper" style="text-align:center;padding:10px;">
+                                <img id="reconImgPreview" src="" alt="Manual Reconstructed Result" style="width:128px;height:128px;image-rendering:pixelated;border:1px solid #475569;border-radius:4px;">
+                            </div>
+                            <a id="btnDownloadReconPng" href="#" class="btn btn-secondary btn-full" download>
+                                📥 DOWNLOAD RECONSTRUCTED PNG
+                            </a>
+                        </div>
+
+                    </div>
+                </section>
+
+            </div>
+
+        </main>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 3: RUN PIXELFLOW PAGE (MODE B)                       -->
+        <!-- ========================================================= -->
+        <main id="view-run" class="tab-view">
+            
+            <div class="page-title-banner">
+                <h2>PIXELFLOW — FULL HARDWARE PIPELINE</h2>
+                <p class="subtitle">Execute complete end-to-end FPGA SystemVerilog convolution pipeline</p>
+            </div>
+
+            <!-- ACTION BANNER -->
+            <div class="action-banner">
+                <div class="upload-box">
+                    <label for="imageUploadInput" class="btn btn-secondary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        UPLOAD CUSTOM IMAGE
+                    </label>
+                    <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
+                    <span class="file-info" id="uploadFilenameInfo">No file selected. Select an image file to start.</span>
+                </div>
+
+                <button class="btn btn-primary-lg" id="runAllBtn" onclick="runFullPipeline()">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    RUN PIXELFLOW
+                </button>
+            </div>
+
+            <!-- PIPELINE VISUALIZER NODE FLOW -->
+            <section class="card pipeline-card">
+                <h3 class="card-title">10-Stage End-to-End Hardware Pipeline Flow</h3>
+                
+                <div class="pipeline-flow">
+                    
+                    <div class="pipe-node" id="node-1">
+                        <div class="node-icon">🖼️</div>
+                        <div class="node-title">1. INPUT IMAGE</div>
+                        <div class="node-sub" id="node1Sub">No File</div>
+                        <div class="node-badge" id="node1Badge">Upload</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node" id="node-2">
+                        <div class="node-icon">🐍</div>
+                        <div class="node-title">2. PREPROCESSING</div>
+                        <div class="node-sub">prepare_image.py</div>
+                        <div class="node-badge">8-bit Grayscale</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node" id="node-3">
+                        <div class="node-icon">📄</div>
+                        <div class="node-title">3. INPUT MEM</div>
+                        <div class="node-sub" id="node3Sub">input.mem</div>
+                        <div class="node-badge">1024 Hex Bytes</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node RTL-node" id="node-4">
+                        <div class="node-icon">💾</div>
+                        <div class="node-title">4. $readmemh</div>
+                        <div class="node-sub">tb_image_filter.sv</div>
+                        <div class="node-badge highlight">SV Memory Load</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node RTL-node" id="node-5">
+                        <div class="node-icon">⚡</div>
+                        <div class="node-title">5. RTL TOP</div>
+                        <div class="node-sub">image_filter_top.sv</div>
+                        <div class="node-badge highlight">SystemVerilog</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node RTL-node" id="node-6">
+                        <div class="node-icon">↔️</div>
+                        <div class="node-title">6. ROW CONV</div>
+                        <div class="node-sub">row_convolver.sv</div>
+                        <div class="node-badge highlight">[1 2 1] FIR</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node RTL-node" id="node-7">
+                        <div class="node-icon">↕️</div>
+                        <div class="node-title">7. COL CONV</div>
+                        <div class="node-sub">column_convolver.sv</div>
+                        <div class="node-badge highlight">[1 2 1]ᵀ FIR</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node" id="node-8">
+                        <div class="node-icon">💾</div>
+                        <div class="node-title">8. OUTPUT MEM</div>
+                        <div class="node-sub" id="node8Sub">output.mem</div>
+                        <div class="node-badge">1024 Hex Bytes</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node" id="node-9">
+                        <div class="node-icon">🔄</div>
+                        <div class="node-title">9. RECONSTRUCTION</div>
+                        <div class="node-sub">reconstruct.py</div>
+                        <div class="node-badge">MEM → PNG</div>
+                    </div>
+
+                    <div class="pipe-arrow">→</div>
+
+                    <div class="pipe-node success-node" id="node-10">
+                        <div class="node-icon">✨</div>
+                        <div class="node-title">10. OUTPUT IMAGE</div>
+                        <div class="node-sub" id="node10Sub">PNG Image</div>
+                        <div class="node-badge">PixelFlow Output</div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- GRID DISPLAY -->
+            <div class="dashboard-grid">
+                
+                <!-- LEFT PANEL: IMAGE COMPARISON -->
+                <section class="card display-card">
+                    <h3 class="card-title">Hardware Results & Image Comparison</h3>
+                    
+                    <div class="comparison-container">
+                        
+                        <!-- INPUT IMAGE -->
+                        <div class="image-box">
+                            <div class="box-header">
+                                <span class="box-tag tag-input">INPUT IMAGE</span>
+                                <span class="box-res" id="inputResBadge">Upload File</span>
+                            </div>
+                            <div class="img-wrapper">
+                                <img id="inputImgPreview" src="" alt="Selected Input Preview" style="display:none;">
+                                <div id="inputImgPlaceholder" style="text-align:center;padding:40px;color:#64748b;font-size:13px;">No image uploaded yet.<br>Click 'UPLOAD CUSTOM IMAGE' to select a file.</div>
+                            </div>
+                            <div class="box-footer" id="inputImgFooter">File: None</div>
+                        </div>
+
+                        <div class="compare-divider">
+                            <div class="arrow-circle">➔</div>
+                        </div>
+
+                        <!-- PIXELFLOW HARDWARE OUTPUT -->
+                        <div class="image-box">
+                            <div class="box-header">
+                                <span class="box-tag tag-output">PIXELFLOW OUTPUT</span>
+                                <span class="box-res" id="outputResBadge">Awaiting Run</span>
+                            </div>
+                            <div class="img-wrapper">
+                                <img id="outputImgPreview" src="" alt="Hardware Output" style="display:none;">
+                                <div id="outputImgPlaceholder" style="text-align:center;padding:40px;color:#64748b;font-size:13px;">No hardware output generated.<br>Click 'RUN PIXELFLOW' to execute pipeline.</div>
+                            </div>
+                            <div class="box-footer" id="outputImgFooter">Artifact: None</div>
+                        </div>
+
+                    </div>
+                    
+                    <div class="quick-downloads-row">
+                        <a id="btnDownloadRunInputMem" href="#" class="btn btn-sm btn-subtle disabled" download>📥 Download input.mem</a>
+                        <a id="btnDownloadRunOutputMem" href="#" class="btn btn-sm btn-subtle disabled" download>📥 Download output.mem</a>
+                        <a id="btnDownloadRunOutputPng" href="#" class="btn btn-sm btn-subtle disabled" download>📥 Download reconstructed PNG</a>
+                    </div>
+                </section>
+
+                <!-- RIGHT PANEL: LIVE PIPELINE STATUS -->
+                <div class="side-column">
+                    
+                    <section class="card status-card">
+                        <h3 class="card-title">Live Pipeline Status</h3>
+                        <ul class="status-list">
+                            <li id="st-ready" class="active"><span class="dot"></span> System Ready</li>
+                            <li id="st-img"><span class="dot"></span> Input Image Loaded</li>
+                            <li id="st-mem"><span class="dot"></span> input.mem Generated (prepare_image.py)</li>
+                            <li id="st-sim"><span class="dot"></span> RTL Hardware Simulation (Vivado XSim)</li>
+                            <li id="st-outmem"><span class="dot"></span> output.mem Captured</li>
+                            <li id="st-recon"><span class="dot"></span> Image Reconstructed (reconstruct.py)</li>
+                            <li id="st-complete"><span class="dot"></span> Hardware Pipeline Complete</li>
+                        </ul>
+                    </section>
+
+                    <section class="card mem-card">
+                        <div class="card-header-flex">
+                            <h3 class="card-title">MEM File Specification</h3>
+                            <button class="btn btn-sm" onclick="toggleMemPreview()">View MEM Hex</button>
+                        </div>
+                        
+                        <div class="spec-grid">
+                            <div class="spec-item"><span class="lbl">Input MEM:</span> <span class="val" id="specInputMem">Awaiting prepare_image.py</span></div>
+                            <div class="spec-item"><span class="lbl">Output MEM:</span> <span class="val" id="specOutputMem">Awaiting simulation</span></div>
+                            <div class="spec-item"><span class="lbl">Resolution:</span> <span class="val">32 × 32 (1024 Pixels)</span></div>
+                            <div class="spec-item"><span class="lbl">Format:</span> <span class="val">2-Digit Hexadecimal</span></div>
+                            <div class="spec-item"><span class="lbl">Pixel Width:</span> <span class="val">8-bit Grayscale</span></div>
+                            <div class="spec-item"><span class="lbl">Ordering:</span> <span class="val">Row-Major</span></div>
+                        </div>
+
+                        <div class="mem-preview-container" id="memPreviewBox" style="display:none;">
+                            <div class="mem-preview-title">First 20 Hex Values (input.mem):</div>
+                            <div class="hex-grid" id="hexGridContent">Loading...</div>
+                        </div>
+                    </section>
+
+                </div>
+
+            </div>
+
+            <!-- SIMULATION CONSOLE LOG -->
+            <section class="card log-card">
+                <div class="card-header-flex">
+                    <h3 class="card-title">Hardware Simulation Console Log</h3>
+                    <button class="btn btn-sm btn-subtle" onclick="clearLog()">Clear Log</button>
+                </div>
+                <pre class="console-log" id="consoleLog">[SYSTEM READY] Click 'RUN PIXELFLOW' to execute end-to-end FPGA demonstration.</pre>
+            </section>
+
+        </main>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 4: ARCHITECTURE & HOW PIXELFLOW WORKS               -->
+        <!-- ========================================================= -->
+        <main id="view-architecture" class="tab-view">
+            
+            <div class="page-title-banner">
+                <h2>PIXELFLOW ARCHITECTURE & HARDWARE DETAILS</h2>
+                <p class="subtitle">SystemVerilog 2D Separable FIR Filter Pipeline & Memory Interface</p>
+            </div>
+
+            <!-- HOW PIXELFLOW WORKS SECTION -->
+            <section class="card arch-section-card">
+                <h3 class="card-title">HOW PIXELFLOW WORKS — STEP-BY-STEP FLOW</h3>
+                
+                <div class="how-grid">
+                    
+                    <div class="how-step" onclick="showStageModal(1)">
+                        <div class="step-num">1</div>
+                        <div class="step-title">INPUT IMAGE</div>
+                        <div class="step-desc">Normal image in PNG, JPG, or BMP format loaded into workspace.</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(2)">
+                        <div class="step-num">2</div>
+                        <div class="step-title">GRAYSCALE & RESIZE</div>
+                        <div class="step-desc">prepare_image.py resizes image to 32×32 and converts to 8-bit grayscale.</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(3)">
+                        <div class="step-num">3</div>
+                        <div class="step-title">HEX MEMORY</div>
+                        <div class="step-desc">1024 8-bit hex bytes written to input.mem in row-major order.</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(4)">
+                        <div class="step-num">4</div>
+                        <div class="step-title">$readmemh</div>
+                        <div class="step-desc">SystemVerilog testbench loads input.mem into simulation RAM array.</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(5)">
+                        <div class="step-num">5</div>
+                        <div class="step-title">ROW CONVOLUTION</div>
+                        <div class="step-desc">row_convolver.sv applies horizontal 1D FIR kernel [1 2 1].</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(6)">
+                        <div class="step-num">6</div>
+                        <div class="step-title">COLUMN CONVOLUTION</div>
+                        <div class="step-desc">column_convolver.sv applies vertical 1D FIR kernel [1 2 1]ᵀ.</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(7)">
+                        <div class="step-num">7</div>
+                        <div class="step-title">NORMALIZATION</div>
+                        <div class="step-desc">Filtered 16-bit values shifted right by 4 (>>> 4, divide by 16) to 8-bit.</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(8)">
+                        <div class="step-num">8</div>
+                        <div class="step-title">OUTPUT MEM</div>
+                        <div class="step-desc">Filtered hardware pixels captured to output.mem file.</div>
+                    </div>
+
+                    <div class="how-step" onclick="showStageModal(9)">
+                        <div class="step-num">9</div>
+                        <div class="step-title">MEM → PNG</div>
+                        <div class="step-desc">reconstruct.py reads output.mem and saves final reconstructed PNG.</div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION: $readmemh EXPLANATION -->
+            <section class="card arch-explain-card">
+                <h3 class="card-title">How does the image enter hardware?</h3>
+                
+                <div class="explain-container">
+                    <div class="explain-diagram">
+                        <div class="exp-box">input.mem</div>
+                        <div class="exp-arrow">➔ $readmemh ➔</div>
+                        <div class="exp-box exp-sv">image_mem[0:1023]</div>
+                        <div class="exp-arrow">➔ row_in ➔</div>
+                        <div class="exp-box exp-hw">image_filter_top</div>
+                    </div>
+
+                    <div class="explain-text">
+                        <p>
+                            The Python script <code>prepare_image.py</code> creates the <code>input.mem</code> text file. 
+                            In the SystemVerilog testbench (<code>tb_image_filter.sv</code>), the <code>$readmemh</code> System Task 
+                            loads those hexadecimal pixel values into simulation memory:
+                        </p>
+                        <pre class="code-block">initial begin
+    $readmemh(INPUT_MEM, image_mem);
+end</pre>
+                        <p>
+                            The testbench then streams 2 rows per clock cycle over 512-bit wide memory buses directly into the <code>image_filter_top</code> hardware module.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: 2D SEPARABLE FILTER OPERATION -->
+            <section class="card filter-matrix-card">
+                <h3 class="card-title">The 2D Separable Filter Kernel Matrix</h3>
+                
+                <div class="matrix-flex">
+                    <div class="matrix-box">
+                        <div class="matrix-title">3 × 3 Effective 2D Gaussian Kernel</div>
+                        <table class="kernel-table">
+                            <tr><td>1</td><td>2</td><td>1</td></tr>
+                            <tr><td>2</td><td>4</td><td>2</td></tr>
+                            <tr><td>1</td><td>2</td><td>1</td></tr>
+                        </table>
+                        <div class="matrix-sum">Sum of Coefficients = 16</div>
+                    </div>
+
+                    <div class="matrix-math">
+                        <div class="math-op">=</div>
+                    </div>
+
+                    <div class="matrix-box">
+                        <div class="matrix-title">Horizontal FIR [1 2 1]</div>
+                        <table class="kernel-table-row">
+                            <tr><td>1</td><td>2</td><td>1</td></tr>
+                        </table>
+                        <div class="matrix-sub">row_convolver.sv</div>
+                    </div>
+
+                    <div class="matrix-math">
+                        <div class="math-op">⊗</div>
+                    </div>
+
+                    <div class="matrix-box">
+                        <div class="matrix-title">Vertical FIR [1 2 1]ᵀ</div>
+                        <table class="kernel-table-col">
+                            <tr><td>1</td></tr>
+                            <tr><td>2</td></tr>
+                            <tr><td>1</td></tr>
+                        </table>
+                        <div class="matrix-sub">column_convolver.sv</div>
+                    </div>
+                </div>
+                
+                <p class="matrix-note">
+                    By decoupling 2D convolution into two 1D stages, PixelFlow reduces multiply-accumulate complexity from <strong>O(K × L)</strong> to <strong>O(K + L)</strong> per pixel, allowing 2 rows/cycle parallel hardware throughput!
+                </p>
+            </section>
+
+            <!-- SECTION 15: WHAT IMPROVED TABLE -->
+            <section class="card comparison-table-card">
+                <h3 class="card-title">FACTUAL ENGINEERING COMPARISON ("WHAT IMPROVED?")</h3>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>DESIGN PROPERTY</th>
+                            <th>TRADITIONAL 2D CONVOLUTION</th>
+                            <th>CURRENT PIXELFLOW IMPLEMENTATION</th>
+                            <th>SOURCE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Algorithm Topology</td>
+                            <td>Full 2D Spatial Sliding Window</td>
+                            <td>Separable 2D Convolution (Horizontal + Vertical FIR)</td>
+                            <td><span class="badge badge-rtl">From RTL</span></td>
+                        </tr>
+                        <tr>
+                            <td>Parallelism / Throughput</td>
+                            <td>1 Pixel / Clock Cycle</td>
+                            <td>2 Rows / Cycle Parallel Processing</td>
+                            <td><span class="badge badge-rtl">From RTL</span></td>
+                        </tr>
+                        <tr>
+                            <td>Input / Output Memory Bus</td>
+                            <td>8-bit / 16-bit Serial Stream</td>
+                            <td>512-bit Parallel Row Bus</td>
+                            <td><span class="badge badge-rtl">From RTL</span></td>
+                        </tr>
+                        <tr>
+                            <td>Pipeline Latency</td>
+                            <td>M × K Cycles</td>
+                            <td>K + L - 1 = 5 Cycles</td>
+                            <td><span class="badge badge-rtl">From RTL</span></td>
+                        </tr>
+                        <tr>
+                            <td>Normalization</td>
+                            <td>Integer Division Unit</td>
+                            <td>Bit-Shift >>> 4 (Zero Logic Delay)</td>
+                            <td><span class="badge badge-rtl">From RTL</span></td>
+                        </tr>
+                        <tr>
+                            <td>Verification Status</td>
+                            <td>Unverified</td>
+                            <td>0 Mismatches (1024 Pixels Validated)</td>
+                            <td><span class="badge badge-vivado">Measured from Vivado</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 5: VIVADO HARDWARE REPORTS                           -->
+        <!-- ========================================================= -->
+        <main id="view-reports" class="tab-view">
+            
+            <div class="page-title-banner">
+                <h2>VIVADO / HARDWARE REPORTS</h2>
+                <p class="subtitle">Discovered synthesis, implementation, timing, power, and simulation reports</p>
+            </div>
+
+            <section class="card reports-container-card">
+                <div class="card-header-flex">
+                    <h3 class="card-title">DISCOVERED VIVADO REPORTS</h3>
+                    <button class="btn btn-sm btn-subtle" onclick="refreshReportsList()">🔄 Refresh Reports</button>
+                </div>
+
+                <div id="reportsGrid" class="reports-grid">
+                    <div class="loading-spinner">Scanning vivado/reports directory...</div>
+                </div>
+            </section>
+
+            <!-- REPORT CONTENT MODAL / VIEWER -->
+            <section id="reportViewerBox" class="card report-viewer-card" style="display:none;">
+                <div class="card-header-flex">
+                    <h3 id="reportViewerTitle" class="card-title">Report Content</h3>
+                    <button class="btn btn-sm btn-subtle" onclick="closeReportViewer()">✕ Close</button>
+                </div>
+                <pre id="reportViewerPre" class="report-content-code">Select a report to view content.</pre>
+            </section>
+
+        </main>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 6: DOWNLOAD CENTER                                  -->
+        <!-- ========================================================= -->
+        <main id="view-downloads" class="tab-view">
+            
+            <div class="page-title-banner">
+                <h2>PIXELFLOW FILES & REPORTS DOWNLOAD CENTER</h2>
+                <p class="subtitle">Download verified input MEM, output MEM, reconstructed images, and Vivado reports</p>
+            </div>
+
+            <div class="downloads-grid">
+                
+                <!-- INPUT ARTIFACTS -->
+                <section class="card download-card">
+                    <h3 class="card-title">INPUT ARTIFACTS</h3>
+                    <ul class="download-list">
+                        <li>
+                            <span class="dl-icon">🖼️</span>
+                            <div class="dl-info">
+                                <div class="dl-name">original.png</div>
+                                <div class="dl-sub">Original Input Image (32×32)</div>
+                            </div>
+                            <a href="/api/download/input/original.png" class="btn btn-sm btn-secondary" download>Download</a>
+                        </li>
+                        <li>
+                            <span class="dl-icon">📄</span>
+                            <div class="dl-info">
+                                <div class="dl-name">input.mem</div>
+                                <div class="dl-sub">1024 8-bit Hexadecimal Memory File</div>
+                            </div>
+                            <a href="/api/download/input/input.mem" class="btn btn-sm btn-secondary" download>Download</a>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- HARDWARE OUTPUT ARTIFACTS -->
+                <section class="card download-card">
+                    <h3 class="card-title">HARDWARE OUTPUT ARTIFACTS</h3>
+                    <ul class="download-list">
+                        <li>
+                            <span class="dl-icon">💾</span>
+                            <div class="dl-info">
+                                <div class="dl-name">output.mem</div>
+                                <div class="dl-sub">Captured Hardware Output MEM</div>
+                            </div>
+                            <a href="/api/download/output/output.mem" class="btn btn-sm btn-secondary" download>Download</a>
+                        </li>
+                        <li>
+                            <span class="dl-icon">✨</span>
+                            <div class="dl-info">
+                                <div class="dl-name">reconstructed.png</div>
+                                <div class="dl-sub">Reconstructed Filtered Image</div>
+                            </div>
+                            <a href="/api/download/output/reconstructed.png" class="btn btn-sm btn-secondary" download>Download</a>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- VIVADO REPORTS PACKAGE -->
+                <section class="card download-card span-full">
+                    <div class="card-header-flex">
+                        <h3 class="card-title">VIVADO HARDWARE REPORTS PACKAGE</h3>
+                        <a href="/api/download_all_reports" class="btn btn-primary">
+                            📦 DOWNLOAD ALL REPORTS (.ZIP)
+                        </a>
+                    </div>
+                    <p class="dl-pkg-desc">
+                        Contains all synthesis, utilization (utilization.txt), timing slack (timing_summary.txt), on-chip power (power.txt), methodology (methodology.txt), DRC checks (drc.txt), clock utilization, and simulation logs.
+                    </p>
+                </section>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+            <p>PixelFlow — IEEE 2025 Paper-Aligned Row-Batch Image Processing Pipeline | SystemVerilog & Vivado XSim</p>
+        </footer>
+
+    </div>
+
+    <!-- MODAL FOR ARCHITECTURE STAGE EXPLANATION -->
+    <div id="stageModal" class="modal-overlay" onclick="closeStageModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h4 id="modalStageTitle">Stage Details</h4>
+                <button class="btn btn-sm btn-subtle" onclick="closeStageModal()">✕</button>
+            </div>
+            <div id="modalStageBody" class="modal-body">
+                Stage explanation...
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
+

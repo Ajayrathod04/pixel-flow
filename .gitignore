@@ -8,3 +8,6 @@ modelsim.ini
 ~$*
 *.docx.tmp
 *.pptx.tmp
+.vercel
+__pycache__/
+*.pyc
